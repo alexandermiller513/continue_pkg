@@ -21,19 +21,20 @@ program
     console.log('continue_pkg install <package>');
   });
 
-program
+  program
   .command('install [package]')
   .description('Install a package or all packages from package.json if no package is specified')
   .action(async (pkg) => {
-    
     if (pkg) {
+      const [packageName, version] = pkg.split('@');
+      const pkgVersion = version || 'latest';
       try {
-        console.log(`Fetching package: ${pkg} details from npm...`);
-        const response = await axios.get(`https://registry.npmjs.org/${pkg}`);
-        const latestVersion = response.data['dist-tags'].latest;
-        console.log(`Latest version of ${pkg} is ${latestVersion}`);
-        await pkgManager.installPackage(pkg, latestVersion);
-        console.log(`${pkg} installed successfully`);
+        console.log(`Fetching package: ${packageName} details from npm...`);
+        const response = await axios.get(`https://registry.npmjs.org/${packageName}`);
+        const resolvedVersion = pkgVersion === 'latest' ? response.data['dist-tags'].latest : pkgVersion;
+        console.log(`Version of ${packageName} to be installed is ${resolvedVersion}`);
+        await pkgManager.installPackage(packageName, resolvedVersion);
+        console.log(`${packageName} installed successfully`);
       } catch (error) {
         console.error(`Failed to install package: ${error.message}`);
         console.error(error.stack);
@@ -72,28 +73,32 @@ program
     }
   });
 
-program
+
+  program
   .command('add <package>')
   .description('Add a package to package.json')
   .action(async (pkg) => {
+    const [packageName, version] = pkg.split('@');
+    const pkgVersion = version || 'latest';
     try {
-      // console.log(`Fetching package: ${pkg} details from npm...`);
-      const response = await axios.get(`https://registry.npmjs.org/${pkg}`);
-      const latestVersion = response.data['dist-tags'].latest;
-      // console.log(`Latest version of ${pkg} is ${latestVersion}`);
+      console.log(`Fetching package: ${packageName} details from npm...`);
+      const response = await axios.get(`https://registry.npmjs.org/${packageName}`);
+      const resolvedVersion = pkgVersion === 'latest' ? response.data['dist-tags'].latest : pkgVersion;
+      console.log(`Version of ${packageName} to be added is ${resolvedVersion}`);
       
       const packageJsonPath = path.resolve(process.cwd(), 'package.json');
       const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
       packageJson.dependencies = packageJson.dependencies || {};
-      packageJson.dependencies[pkg] = `^${latestVersion}`;
+      packageJson.dependencies[packageName] = `^${resolvedVersion}`;
       await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
       
-    //   await installPackage(pkg, latestVersion);
-      console.log(`Added ${pkg}@${latestVersion}`);
+      await pkgManager.installPackage(packageName, resolvedVersion);
+      console.log(`Added and installed ${packageName}@${resolvedVersion}`);
     } catch (error) {
       console.error(`Failed to add package: ${error.message}`);
     }
   });
+
 
   program
   .command('start')
