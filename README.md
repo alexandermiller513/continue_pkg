@@ -3,6 +3,7 @@ chmod +x index.js
 npm install -g
 
 Usage:
+
 continue_pkg init
 
 continue_pkg add <package>
