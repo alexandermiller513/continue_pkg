@@ -15,9 +15,9 @@ program
   .version('1.0.0')
   .action(async () => {
     console.log('continue_pkg init');
+    console.log('continue_pkg add <package>');
     console.log('continue_pkg install');
     console.log('continue_pkg install <package>');
-    console.log('continue_pkg add <package>');
   });
 
   async function downloadAndExtractPackage(pkg, version) {
