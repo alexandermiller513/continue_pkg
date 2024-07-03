@@ -17,3 +17,5 @@ continue_pkg add PACKAGE
 continue_pkg install
 
 continue_pkg install PACKAGE
+
+test
