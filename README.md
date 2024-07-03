@@ -1,3 +1,5 @@
+Continue_PKG_Manager
+
 git clone https://github.com/alexandermiller513/continue_pkg.git
 
 chmod +x index.js
